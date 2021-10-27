@@ -1,93 +1,22 @@
-from ctypes import pointer
-from PyQt5.QtWidgets import QApplication, QLineEdit, QWidget, QLabel, QPushButton, QSpinBox
-from PyQt5.QtGui import QFont, QIcon, QKeyEvent
+from PyQt5.QtWidgets import QApplication, QLineEdit, QWidget, QLabel, QPushButton, QSpinBox, QListWidget
+from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtCore import QPoint, QSize, QEvent
 import sys
 import os
+from styles import BACKGROUND_COLOR, TITLE_FONT, SUBTITLE_FONT, StyleButton
+import datetime
 
 # основные цвета:
 #08457e темный
 #499EEC светлый
 # формат изображений svg
-# QSpinBox
+# QSpinBox QPushButton {...}
 
 budget = ''
 day = 1
 money = ''
 waste = ''
 wastes = []
-BACKGROUND_COLOR = 'background-color: #08457e;'
-TITILE_FONT = 'Eurofurence'
-TITILE_FONT_SIZE = 23
-SUBTITLE_FONT = 'Eurofurence'
-SUBTITLE_FONT_SIZE = 15
-
-class StyleButton:
-    def baseButton():
-        return '''
-        QPushButton {
-            background-color: #08457e;
-            font-size: 25px;
-            font-family: 'Eurofurence', sans-serif;
-            color: #499EEC;
-            border: 1px solid #499EEC;
-            border-radius: 5px;
-        }
-        QPushButton:hover:pressed {
-            background-color: #499EEC;
-            color: #08457e;
-            border: 1px solid #08457e;
-        }
-        '''
-
-    def enterButton():
-        return '''
-        QPushButton {
-            background-color: #499EEC;
-            font-weight: 500;
-            font-size: 40px;
-            padding-top: 80px;
-            color: #08457e;
-            border: 1px solid #499EEC;
-            border-radius: 5px;
-        }
-        QPushButton:hover:pressed {
-            background-color: #08457e;
-            color: #499EEC;
-            border: 1px solid #499EEC;
-        }
-        '''
-
-    def deleteButton():
-        return '''
-        QPushButton {
-            background-color: #2B2B2B;
-            font-size: 25px;
-            padding-top: 5px;
-            color: #499EEC;
-            border: 1px solid #499EEC;
-            border-radius: 5px;
-        }
-        QPushButton:hover:pressed {
-            background-color: #499EEC;
-            color: #2B2B2B;
-            border: 1px solid #499EEC;
-        }
-        '''
-    # background-color: rgba(200, 200, 200, .25);
-    # 
-    def settings():
-        return '''
-        QPushButton { 
-            background-color: rgba(200, 200, 200, .0);
-            padding-top: 3px;
-            color: #499EEC;
-            font-size: 25px;
-        }
-        QPushButton:hover:pressed {
-            color: #2B2B2B;
-        }
-        '''
 
 class MainWindow(QWidget):
 
@@ -99,29 +28,26 @@ class MainWindow(QWidget):
     def setup(self):
         self.resize(300, 400)
         self.setFixedSize(300, 400)
-        self.setGeometry
         self.setStyleSheet(BACKGROUND_COLOR)
-        titile_font = QFont(TITILE_FONT, TITILE_FONT_SIZE, QFont.Weight.Bold)
-        subtitle_font = QFont(SUBTITLE_FONT, SUBTITLE_FONT_SIZE, QFont.Weight.Normal)
 
         self.setWindowTitle('Survive')
-        self.setWindowIcon(QIcon(os.path.dirname(__file__) + '/settings.png'))
+        self.setWindowIcon(QIcon(os.path.dirname(__file__) + '/icons/app_icon.png'))
         
 
         self.top_label = QLabel('На сегодня', self)
         self.top_label.setGeometry(0, 41, 300, 35)
-        self.top_label.setFont(subtitle_font)
+        self.top_label.setFont(SUBTITLE_FONT)
         self.top_label.setStyleSheet('color: #499EEC; padding-left: 10px; border-bottom: 1px solid #499EEC;')
 
         self.money_label = QLabel(f'{money}', self)
         self.money_label.setGeometry(0, 15, 300, 26)
         # self.money_label.setMargin(10)
-        self.money_label.setFont(titile_font)
+        self.money_label.setFont(TITLE_FONT)
         self.money_label.setStyleSheet('color: #499EEC; padding-left: 15px;')
 
         self.waste_label = QLabel(f'Потрачено:\n{waste}', self)
         self.waste_label.setGeometry(0, 80, 300, 80)
-        self.waste_label.setFont(titile_font)
+        self.waste_label.setFont(TITLE_FONT)
         self.waste_label.setStyleSheet('color: #499EEC; padding-left: 5px;')
         
         self.zeroButton = QPushButton('0', self)
@@ -189,18 +115,18 @@ class MainWindow(QWidget):
         self.nineButton.setStyleSheet(StyleButton.baseButton())
         self.nineButton.clicked.connect(lambda: self.buttonClick('9'))
         # self.nineButton.keyPressEvent(QKeyEvent(QEvent.KeyPress, 9))
-# 
-        self.settingsButton = QPushButton('\uE115', self)
+# \uE115
+        self.settingsButton = QPushButton('', self)
         self.settingsButton.setGeometry(270, 0, 30, 30)
-        # self.settingsButton.icon(QIcon(os.path.dirname(__file__) + '/settings1.png').addFile(os.path.dirname(__file__) + '/settings1.png', QSize(25, 25), mode = QIcon.Selected, state = QIcon.Off))
-        # self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/settings.png').addFile('settings.png', QSize(25, 25), mode = QIcon.Normal, state = QIcon.Off))
+        self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/settings.png'))
+        self.settingsButton.setIconSize(QSize(25, 25))
         self.settingsButton.setStyleSheet(StyleButton.settings())
         self.settingsButton.clicked.connect(self.settingsClick)
-        # self.settingsButton.pressed.connect(self.icon1)
-        # self.settingsButton.mousePressEvent.connect(self.icon1)
+        self.settingsButton.pressed.connect(self.settings_press_icon)
 
-    def icon1(self):
-        self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/settings1.png'))
+
+    def settings_press_icon(self):
+        self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/settings1.png'))
         
 
     def buttonClick(self, char):
@@ -222,6 +148,7 @@ class MainWindow(QWidget):
         self.waste_label.setText(f'Потрачено:\n{waste}')
 
     def settingsClick(self):
+        self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/settings.png'))
         settings.show()
         self.hide()
 
@@ -236,48 +163,61 @@ class SettingsWindow(QWidget):
         self.setGeometry(window.geometry())
         self.setFixedSize(300, 400)
         self.setWindowTitle('Survive')
-        self.setWindowIcon(QIcon(os.path.dirname(__file__) + '/settings.png'))
+        self.setWindowIcon(QIcon(os.path.dirname(__file__) + '/icons/app_icon.png'))
         self.setStyleSheet(BACKGROUND_COLOR)
         self.window
         
+        
         self.budget_label = QLabel('Бюджет', self)
         self.budget_label.setGeometry(95, 15, 120, 30)
-        self.budget_label.setFont(QFont(TITILE_FONT, TITILE_FONT_SIZE, QFont.Weight.Bold))
+        self.budget_label.setFont(TITLE_FONT)
         self.budget_label.setStyleSheet('color: #499EEC;')
 
         self.budget_edit = QLineEdit(f'{budget}', self)
         self.budget_edit.setGeometry(10, 55, 280, 40)
-        self.budget_edit.setFont(QFont(TITILE_FONT, 40))
-        self.budget_edit.setStyleSheet('color: #499EEC; border: 1px solid #499EEC')
+        self.budget_edit.setFont(TITLE_FONT)
+        self.budget_edit.setStyleSheet('color: #499EEC; border: 1px solid #499EEC; font-size: 40px;')
         self.budget_edit.textChanged.connect(self.budget_change)
 
-
+        
         self.day_label = QLabel('Дней:', self)
         self.day_label.setGeometry(75, 105, 95, 30)
-        self.day_label.setFont(QFont(TITILE_FONT, TITILE_FONT_SIZE, QFont.Weight.Bold))
+        self.day_label.setFont(TITLE_FONT)
         self.day_label.setStyleSheet('color: #499EEC;')
 
         self.day_spin = QSpinBox(self)
         self.day_spin.setGeometry(170, 105, 55, 30)
         self.day_spin.setRange(1, 31)
-        self.day_spin.setFont(QFont(TITILE_FONT, TITILE_FONT_SIZE, QFont.Weight.Bold))
+        self.day_spin.setFont(TITLE_FONT)
         self.day_spin.setStyleSheet('color: #499EEC; border: 1px solid #499EEC')
         self.day_spin.valueChanged.connect(self.day_change)
         
-
-
-        self.backButton = QPushButton('\uF71A',self)
-        self.backButton.setGeometry(0, 10, 30, 30)
-        self.backButton.setStyleSheet(StyleButton.settings())
+# \uF71A
+        self.backButton = QPushButton('',self)
+        self.backButton.setGeometry(10, 10, 30, 30)
+        self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
+        self.backButton.setIconSize(QSize(30, 30))
+        self.backButton.setStyleSheet(StyleButton.apply_back())
         self.backButton.clicked.connect(self.backClick)
+        self.backButton.pressed.connect(self.back_press_icon)
 
-        self.okButton = QPushButton('\uE8FB', self)
-        self.okButton.setGeometry(270, 10, 30, 30)
-        self.okButton.setStyleSheet(StyleButton.settings())
-        self.okButton.clicked.connect(self.okClick)
+# \uE8FB
+        self.applyButton = QPushButton('', self)
+        self.applyButton.setGeometry(260, 10, 30, 30)
+        self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply.png'))
+        self.applyButton.setIconSize(QSize(30, 30))
+        self.applyButton.setStyleSheet(StyleButton.apply_back())
+        self.applyButton.clicked.connect(self.applyClick)
+        self.applyButton.pressed.connect(self.apply_press_icon)
 
         self.show()
 
+
+    def back_press_icon(self):
+        self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back1.png'))
+
+    def apply_press_icon(self):
+        self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply1.png'))
 
     def day_change(self):
         global day
@@ -288,14 +228,15 @@ class SettingsWindow(QWidget):
         budget = self.budget_edit.text()
 
     def backClick(self):
+        self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
         global budget
         global day
         budget = ''
         day = 1
         window.show()
-        self.hide()
+        self.close()
 
-    def okClick(self):
+    def applyClick(self):
         global budget
         global money
         global day
@@ -306,10 +247,12 @@ class SettingsWindow(QWidget):
             day = 1
             window.money_label.setText(f'{money}')
             window.show()
-            self.hide()
+            self.close()
         except ValueError:
             self.budget_edit.setText('Ошибка ввода')
             self.budget_edit.selectAll()
+        finally:
+            self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply.png'))
 
         
         
