@@ -11,8 +11,13 @@
 
 # global/nonlocal
 
-def func():
-    pass
+# def func():
+#     pass
 
-print(func)
-print(func())
+# print(func)
+# print(func())
+
+# gridLayout
+
+word = 'hello'
+print(int(word))
