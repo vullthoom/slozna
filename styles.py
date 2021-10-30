@@ -56,8 +56,8 @@ class StyleButton:
             border: 1px solid #499EEC;
         }
         '''
-    # background-color: rgba(200, 200, 200, .25);
-    # 
+    
+
     def settings():
         return '''
         QPushButton { 
@@ -70,5 +70,20 @@ class StyleButton:
         return '''
         QPushButton { 
             background-color: rgba(200, 200, 200, .0);
+        }
+        '''
+
+
+    def day_spin_style():
+        return '''
+        QSpinBox {
+            color: #499EEC; 
+            border: 1px solid #499EEC;
+        }
+        QSpinBox:up-button {
+    
+        }
+        QSpinBox:up-arrow {
+            color: #2B2B2B;
         }
         '''
