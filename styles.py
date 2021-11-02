@@ -66,7 +66,7 @@ class StyleButton:
         }
         '''
     
-    def apply_back():
+    def apply_and_back():
         return '''
         QPushButton { 
             background-color: rgba(200, 200, 200, .0);
@@ -79,11 +79,5 @@ class StyleButton:
         QSpinBox {
             color: #499EEC; 
             border: 1px solid #499EEC;
-        }
-        QSpinBox:up-button {
-    
-        }
-        QSpinBox:up-arrow {
-            color: #2B2B2B;
         }
         '''
