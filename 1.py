@@ -43,40 +43,65 @@ import sys
 import os
 from datetime import date, time
 
-a = []
+a = {'2021-11-07': 10}
 b = 3
 c = 0
-for i in range(10):
-    a.append(f'{date.today()}: {b, c}')
-# print(a)
+# for i in range(10):
+#     a.append({f'{date.today()}': i})
+print(len('dict_items([('))
 
 
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setup()
+# class Window(QWidget):
+#     def __init__(self):
+#         super().__init__()
+#         self.setup()
+#         self.one()
+#         self.tree()
 
-    def setup(self):
-        self.setWindowTitle('0')
-        self.setFixedSize(300, 150)
+#     def setup(self):
+#         self.setWindowTitle('0')
+#         self.setFixedSize(300, 150)
 
-        self.listwidget = QTreeWidget(self)
-        
-        self.listwidget.setGeometry(0, 0, 300, 150)
-        self.listitem = QTreeWidgetItem(self.listwidget)
-        self.listitem.setText(0, '1')
-        self.listitem1 = QTreeWidgetItem(self.listwidget,self.listitem)
-        self.listitem1.setText(0, '2')
-        # self.listwidget.addTopLevelItem(self.listitem1)
-        # self.listitem = QTreeWidgetItem('1',self.listwidget)
-        # print(type(self.listitem))
-        # self.listitem1 = QListWidgetItem('2')
-        # self.listitem.setToolTip('2')
+#         self.listwidget = QTreeWidget(self)
+#         self.listwidget.setHeaderHidden(True)
+#         self.listwidget.setGeometry(0, 0, 300, 150)
+#         # self.listitem = QTreeWidgetItem(self.listwidget)
+#         # self.listitem.setText(0, '1')
+#         # self.listitem1 = QTreeWidgetItem(self.listitem)
+#         # self.listitem1.setText(0, '2')
+#         # self.listwidget.addTopLevelItem(self.listitem1)
+#         # self.listitem = QTreeWidgetItem('1',self.listwidget)
+#         # print(type(self.listitem))
+
+#     def one(self):
+#         self.listitem = QTreeWidgetItem(self.listwidget)
+#         self.listitem.setText(0, '1')
+#         self.listitem1 = QTreeWidgetItem(self.listitem)
+#         self.listitem1.setText(0, '2')
+#         # self.listitem.setHidden(True)
+#         self.listwidget.setItemWidget
+
+
+    # def tree(self):
+    #     z = set()
+    #     v = []
+    #     for b in a:
+    #         for c in b.keys():
+    #             z.add(c)
+    #     print(len(z))
+    #     if len(z) > 1:
+    #         for x in len(z):
+    #             locals()['num_%s' % x] = QTreeWidgetItem(self.listwidget)
+    #             locals()['num_%s' % x].setText(0, f'{z.pop()}')
+    #     else:
+    #         num_1 = QTreeWidgetItem(self.listwidget)
+    #         num_1.setText(0, f'{z.pop()}')
+        # for i in a.keys()
 
 
 
 
-app = QApplication(sys.argv)
-window = Window()
-window.show()
-sys.exit(app.exec())
+# app = QApplication(sys.argv)
+# window = Window()
+# window.show()
+# sys.exit(app.exec())

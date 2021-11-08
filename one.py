@@ -18,7 +18,7 @@ class MainWindow(QWidget):
         super().__init__()
         use_data()
         self.setup()
-        self.wastes()
+        self.hestory()
 
 
     def setup(self):
@@ -233,11 +233,9 @@ class MainWindow(QWidget):
             try:
                 s.waste = float(s.waste)
                 if float(s.waste) > 0:
-                    s.wastes.append(f'{date.today()}: {round(s.waste, 2)}')
+                    s.wastes.append({f'{date.today()}': round(s.waste, 2)})
                     s.money -= float(s.waste)
-                    # for i in s.wastes:
-                    #     was = i[f'{date.today()}']
-                    self.listwidget.insertItem(0, s.wastes[-1])
+                    self.listwidget.insertItem(0, str(s.wastes[-1].items())[13:-3])
                     self.money_label.setText(f'{round(s.money, 2)}')
                     save_data()
                 else:
@@ -273,7 +271,8 @@ class MainWindow(QWidget):
             s.money = round((s.budget / s.day), 2)
             self.money_label.setText(f'{round(s.money, 2)}')
             s.moneys = s.money
-            s.budgets.append(f'Бюджет {s.budget} на {s.day} дней')
+            s.days =s.day
+            s.budgets.append(f'{date.today()}: Бюджет {s.budget} на {s.days} дней')
             save_data()
         except ValueError:
             error1.show()
@@ -284,6 +283,7 @@ class MainWindow(QWidget):
             s.day = 1
             self.day_spin.setValue(1)
 
+
     # Интерактивные элементы:
     def day_change(self):
         s.day = self.day_spin.value()
@@ -291,10 +291,28 @@ class MainWindow(QWidget):
     def budget_change(self):
         s.budget = self.budget_edit.text()
 
-
-    def wastes(self):
+    def hestory(self):
         for i in s.wastes:
-            self.listwidget.insertItem(0, i)
+            was = str(i.items())
+            self.listwidget.insertItem(0, was[13:-3])
+        try:
+            i = str(s.wastes[-1].keys())[12:-3]
+            h = f'{date.today()}'
+            print(i)
+            print(str(date.today()))
+            if h != i:
+                s.days -= 1
+                s.money += s.moneys
+                s.wastes.append({f'{date.today()}': f'+{s.moneys}'})
+                self.money_label.setText(f'{round(s.money, 2)}')
+                self.listwidget.insertItem(0, str(s.wastes[-1].items())[13:-3])
+                save_data()
+                print('edited')
+            else:
+                print('not edited')
+                pass
+        except IndexError:
+            pass
 
 
 class ErrorWimdow(QWidget):

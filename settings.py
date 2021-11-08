@@ -2,6 +2,7 @@ import json
 import os
 
 settings_file = os.path.dirname(__file__) + '/settings.json'
+clear_file = os.path.dirname(__file__) + '/settings(clear).json'
 
 budget = ''
 day = 1
@@ -9,10 +10,12 @@ money = ''
 waste = ''
 wastes = []
 moneys = 0
+days = 0
 budgets = []
 
 def save_data():
     data = {
+        'days': days,
         'moneys': moneys,
         'budgets': budgets,
         'money': money,
@@ -34,7 +37,28 @@ def use_data():
         money = data['money']
         wastes = data['wastes']
 
-# save_data()
+
+def clear_all():
+    with open(clear_file, 'r', encoding='utf-8') as file:
+        global moneys
+        global budgets
+        global money
+        global wastes
+        data = json.load(file)
+        moneys = data['moneys']
+        budgets = data['budgets']
+        money = data['money']
+        wastes = data['wastes']
+
+
+def clear_moneys_and_budgets():
+    with open(clear_file, 'r', encoding='utf-8') as file:
+        global moneys
+        global budgets
+        data = json.load(file)
+        moneys = data['moneys']
+        budgets = data['budgets']
+
 
 
 
