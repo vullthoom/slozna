@@ -1,28 +1,24 @@
-from PyQt5.QtWidgets import QApplication, QLineEdit, QStyle, QWidget, QLabel, QPushButton, QSpinBox, QListWidget
+from PyQt5.QtWidgets import QApplication, QLineEdit, QListWidgetItem, QStyle, QWidget, QLabel, QPushButton, QSpinBox, QListWidget
 from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtCore import QPoint, QSize, QEvent
 import sys
 import os
 from styles import BACKGROUND_COLOR, TITLE_FONT, SUBTITLE_FONT, StyleButton
 from datetime import date
+from settings import save_data, use_data
+import settings as s
 
 # основные цвета:
 #08457e темный
 #499EEC светлый
-# формат изображений svg
-# QSpinBox QPushButton {...}
-
-budget = ''
-day = 1
-money = ''
-waste = ''
-wastes = []
 
 class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
+        use_data()
         self.setup()
+        self.wastes()
 
 
     def setup(self):
@@ -35,7 +31,7 @@ class MainWindow(QWidget):
 
 # Главное окно:
     # Label:
-        self.money_label = QLabel(f'{money}', self)
+        self.money_label = QLabel(f'{s.money}', self)
         self.money_label.setGeometry(0, 15, 270, 26)
         self.money_label.setFont(TITLE_FONT)
         self.money_label.setStyleSheet('color: #499EEC; padding-left: 10px;')
@@ -45,7 +41,7 @@ class MainWindow(QWidget):
         self.top_label.setFont(SUBTITLE_FONT)
         self.top_label.setStyleSheet('color: #499EEC; padding-left: 10px; border-bottom: 1px solid #499EEC;')
 
-        self.waste_label = QLabel(f'Потрачено:\n{waste}', self)
+        self.waste_label = QLabel(f'Потрачено:\n{s.waste}', self)
         self.waste_label.setGeometry(0, 80, 300, 80)
         self.waste_label.setFont(TITLE_FONT)
         self.waste_label.setStyleSheet('color: #499EEC; padding-left: 5px;')
@@ -146,7 +142,7 @@ class MainWindow(QWidget):
         self.budget_label.setFont(TITLE_FONT)
         self.budget_label.setStyleSheet('color: #499EEC;')
 
-        self.budget_edit = QLineEdit(f'{budget}', self)
+        self.budget_edit = QLineEdit(f'{s.budget}', self)
         self.budget_edit.setGeometry(310, 55, 280, 40)
         self.budget_edit.setFont(TITLE_FONT)
         self.budget_edit.setStyleSheet('color: #499EEC; border: 1px solid #499EEC; font-size: 40px;')
@@ -171,7 +167,7 @@ class MainWindow(QWidget):
         self.backButton.setGeometry(310, 10, 30, 30)
         self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
         self.backButton.setIconSize(QSize(30, 30))
-        self.backButton.setStyleSheet(StyleButton.apply_back())
+        self.backButton.setStyleSheet(StyleButton.apply_and_back())
         self.backButton.clicked.connect(self.backClick)
         self.backButton.pressed.connect(self.back_press_icon)
 
@@ -180,7 +176,7 @@ class MainWindow(QWidget):
         self.applyButton.setGeometry(560, 10, 30, 30)
         self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply.png'))
         self.applyButton.setIconSize(QSize(30, 30))
-        self.applyButton.setStyleSheet(StyleButton.apply_back())
+        self.applyButton.setStyleSheet(StyleButton.apply_and_back())
         self.applyButton.clicked.connect(self.applyClick)
         self.applyButton.pressed.connect(self.apply_press_icon)
 
@@ -212,7 +208,7 @@ class MainWindow(QWidget):
     # Кнопки:
 
     def keyPressEvent(self, event):
-        print(event.key())
+        # print(event.key())
         if 48 <= event.key() <=57:
             # цифра
             self.buttonClick(chr(event.key()))
@@ -226,31 +222,36 @@ class MainWindow(QWidget):
             # enter
             self.buttonClick('\uE751')
         elif event.key() == 16777216:
-            #
+            # esc
             self.backClick()
 
 
     def buttonClick(self, char):
-        global waste
-        global money
         if char == '\uE750':
-            waste = waste[:-1]
+            s.waste = s.waste[:-1]
         elif char == '\uE751':
             try:
-                if float(waste) > 0:
-                    wastes.append(f'{date.today()} : {round(float(waste), 2)}')
-                    money -= float(waste)
-                    self.listwidget.insertItem(0, wastes[-1])
-                    self.money_label.setText(f'{round(money, 2)}')
+                s.waste = float(s.waste)
+                if float(s.waste) > 0:
+                    s.wastes.append(f'{date.today()}: {round(s.waste, 2)}')
+                    s.money -= float(s.waste)
+                    # for i in s.wastes:
+                    #     was = i[f'{date.today()}']
+                    self.listwidget.insertItem(0, s.wastes[-1])
+                    self.money_label.setText(f'{round(s.money, 2)}')
+                    save_data()
                 else:
+                    print('error 1')
                     pass
-            except (ValueError, TypeError):
+                #TypeError
+            except (ValueError):
+                print('error 2')
                 pass
             finally:
-                waste = ''
+                s.waste = ''
         else:
-            waste += char
-        self.waste_label.setText(f'Потрачено:\n{waste}')
+            s.waste += char
+        self.waste_label.setText(f'Потрачено:\n{s.waste}')
 
     def settingsClick(self):
         self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/settings.png'))
@@ -259,40 +260,41 @@ class MainWindow(QWidget):
 
     def backClick(self):
             self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
-            global budget
-            global day
-            budget = ''
+            s.budget = ''
             self.budget_edit.setText('')
-            day = 1
+            s.day = 1
             self.day_spin.setValue(1)
             self.setFixedSize(300, 400)
             self.settingsButton.show()
 
     def applyClick(self):
-        global budget
-        global money
-        global day
         try:
-            budget = float(budget)            
-            money = budget / day
-            budget = ''
-            self.budget_edit.setText('')
-            day = 1
-            self.day_spin.setValue(1)
-            self.money_label.setText(f'{round(money, 2)}')
+            s.budget = float(s.budget)     
+            s.money = round((s.budget / s.day), 2)
+            self.money_label.setText(f'{round(s.money, 2)}')
+            s.moneys = s.money
+            s.budgets.append(f'Бюджет {s.budget} на {s.day} дней')
+            save_data()
         except ValueError:
             error1.show()
         finally:
             self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply.png'))
+            s.budget = ''
+            self.budget_edit.setText('')
+            s.day = 1
+            self.day_spin.setValue(1)
 
     # Интерактивные элементы:
     def day_change(self):
-        global day
-        day = self.day_spin.value()
+        s.day = self.day_spin.value()
 
     def budget_change(self):
-        global budget
-        budget = self.budget_edit.text()
+        s.budget = self.budget_edit.text()
+
+
+    def wastes(self):
+        for i in s.wastes:
+            self.listwidget.insertItem(0, i)
 
 
 class ErrorWimdow(QWidget):
