@@ -81,3 +81,19 @@ class StyleButton:
             border: 1px solid #499EEC;
         }
         '''
+
+    
+    def list_widget():
+        return '''
+        QListWidget {
+            border : 2px solid black;
+            background : lightgreen;
+        }
+        QScrollBar {
+            background : lightblue;
+        }
+        QListView::item:selected {
+            border : 2px solid black;
+            background : green;
+        }
+        '''

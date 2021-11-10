@@ -5,12 +5,14 @@ import sys
 import os
 from styles import BACKGROUND_COLOR, TITLE_FONT, SUBTITLE_FONT, StyleButton
 from datetime import date
-from settings import save_data, use_data
+from settings import save_data, use_data, clear_all, clear_moneys_and_budgets, clear_wastes_history
 import settings as s
 
 # основные цвета:
 #08457e темный
 #499EEC светлый
+
+wind = True
 
 class MainWindow(QWidget):
 
@@ -18,15 +20,14 @@ class MainWindow(QWidget):
         super().__init__()
         use_data()
         self.setup()
-        self.hestory()
+        self.open_and_update_app()
 
 
     def setup(self):
 # Настройки окна
         self.setWindowTitle('Survive')
         self.setWindowIcon(QIcon(os.path.dirname(__file__) + '/icons/app_icon.png'))
-        self.resize(300, 400)
-        self.setFixedSize(300, 400)
+        self.setFixedSize(600, 397)
         self.setStyleSheet(BACKGROUND_COLOR)
 
 # Главное окно:
@@ -138,24 +139,29 @@ class MainWindow(QWidget):
 # Второе окно:
     # Бюджет
         self.budget_label = QLabel('Бюджет', self)
-        self.budget_label.setGeometry(395, 15, 120, 30)
+        self.budget_label.setGeometry(95, 15, 120, 30)
         self.budget_label.setFont(TITLE_FONT)
         self.budget_label.setStyleSheet('color: #499EEC;')
 
         self.budget_edit = QLineEdit(f'{s.budget}', self)
-        self.budget_edit.setGeometry(310, 55, 280, 40)
+        self.budget_edit.setGeometry(10, 55, 280, 40)
         self.budget_edit.setFont(TITLE_FONT)
         self.budget_edit.setStyleSheet('color: #499EEC; border: 1px solid #499EEC; font-size: 40px;')
         self.budget_edit.textChanged.connect(self.budget_change)
 
+        # self.budget_edit = QLabel(f'{s.budget}', self)
+        # self.budget_edit.setGeometry(10, 55, 280, 40)
+        # self.budget_edit.setFont(TITLE_FONT)
+        # self.budget_edit.setStyleSheet('color: #499EEC; border: 1px solid #499EEC; font-size: 40px;')
+
     # Дни    
         self.day_label = QLabel('Дней:', self)
-        self.day_label.setGeometry(375, 105, 95, 30)
+        self.day_label.setGeometry(75, 115, 95, 30)
         self.day_label.setFont(TITLE_FONT)
         self.day_label.setStyleSheet('color: #499EEC;')
 
         self.day_spin = QSpinBox(self)
-        self.day_spin.setGeometry(470, 105, 55, 30)
+        self.day_spin.setGeometry(170, 115, 55, 30)
         self.day_spin.setRange(1, 31)
         self.day_spin.setFont(TITLE_FONT)
         self.day_spin.setStyleSheet(StyleButton.day_spin_style())
@@ -164,7 +170,7 @@ class MainWindow(QWidget):
     # Кнопки:
         # Назад(\uF71A)
         self.backButton = QPushButton('',self)
-        self.backButton.setGeometry(310, 10, 30, 30)
+        self.backButton.setGeometry(10, 10, 30, 30)
         self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
         self.backButton.setIconSize(QSize(30, 30))
         self.backButton.setStyleSheet(StyleButton.apply_and_back())
@@ -173,24 +179,72 @@ class MainWindow(QWidget):
 
         # Подтвердить(\uE8FB) 
         self.applyButton = QPushButton('', self)
-        self.applyButton.setGeometry(560, 10, 30, 30)
+        self.applyButton.setGeometry(260, 10, 30, 30)
         self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply.png'))
         self.applyButton.setIconSize(QSize(30, 30))
         self.applyButton.setStyleSheet(StyleButton.apply_and_back())
-        self.applyButton.clicked.connect(self.applyClick)
+        self.applyButton.clicked.connect(clear_all)
         self.applyButton.pressed.connect(self.apply_press_icon)
 
+        self.budget_label.hide()
+        self.budget_edit.hide()
+        self.day_label.hide()
+        self.day_spin.hide()
+        self.backButton.hide()
+        self.applyButton.hide()
+        
+
+
+
+
+# Боковое окно:
     # История трат
+        self.history_waste = QLabel('История трат', self)
+        self.history_waste.setGeometry(360, 10, 200, 30)
+        self.history_waste.setFont(TITLE_FONT)
+        self.history_waste.setStyleSheet('color: #499EEC;')
+
         self.listwidget = QListWidget(self)
-        self.listwidget.setGeometry(310, 140, 280, 250)
+        self.listwidget.setGeometry(310, 50, 280, 340)
         self.listwidget.setFont(SUBTITLE_FONT)
         self.listwidget.setStyleSheet('color: #499EEC; border: 1px solid #499EEC;')
-        # self.listwidget.itemChanged(wastes)
+        # self.listwidget.setStyleSheet(StyleButton.list_widget())
+
+    # История бюджета
+        self.history_budget = QLabel('История', self)
+        self.history_budget.setGeometry(395, 10, 200, 30)
+        self.history_budget.setFont(TITLE_FONT)
+        self.history_budget.setStyleSheet('color: #499EEC;')
+        self.history_budget.hide()
+
+    # Кнопки
+        # Очистить последнее
+        self.clear_last = QPushButton('',self)
+        self.clear_last.setGeometry(310, 10, 30, 30)
+        self.clear_last.setIcon(QIcon(os.path.dirname(__file__) + '/icons/last_clear.png'))
+        self.clear_last.setIconSize(QSize(30, 30))
+        self.clear_last.setStyleSheet(StyleButton.apply_and_back())
+        self.clear_last.clicked.connect(self.clear_lastClick)
+        self.clear_last.pressed.connect(self.clear_last_icon)
+        self.clear_last.setToolTip('Удалить последнее')
+
+        # ПОчистить все
+        self.clear_all = QPushButton('', self)
+        self.clear_all.setGeometry(560, 10, 30, 30)
+        self.clear_all.setIcon(QIcon(os.path.dirname(__file__) + '/icons/all_clear.png'))
+        self.clear_all.setIconSize(QSize(30, 30))
+        self.clear_all.setStyleSheet(StyleButton.apply_and_back())
+        self.clear_all.clicked.connect(self.clear_allClick)
+        self.clear_all.pressed.connect(self.clear_all_icon)
+        self.clear_all.setToolTip('Очистить историю')
+
+
+
 
 
 # Разделитель
         self.line = QLabel('', self)
-        self.line.setGeometry(300, 0, 1, 400)
+        self.line.setGeometry(300, 0, 1, 169)
         self.line.setStyleSheet('border: 1px solid #499EEC')
 
 
@@ -205,10 +259,18 @@ class MainWindow(QWidget):
     def apply_press_icon(self):
         self.applyButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/apply1.png'))
 
+    def clear_all_icon(self):
+        self.clear_all.setIcon(QIcon(os.path.dirname(__file__) + '/icons/all_clear1.png'))
+
+    def clear_last_icon(self):
+        self.clear_last.setIcon(QIcon(os.path.dirname(__file__) + '/icons/last_clear1.png'))
+
+
     # Кнопки:
 
     def keyPressEvent(self, event):
-        # print(event.key())
+        global wind
+        print(event.key(), wind)
         if 48 <= event.key() <=57:
             # цифра
             self.buttonClick(chr(event.key()))
@@ -227,43 +289,62 @@ class MainWindow(QWidget):
 
 
     def buttonClick(self, char):
-        if char == '\uE750':
-            s.waste = s.waste[:-1]
-        elif char == '\uE751':
-            try:
-                s.waste = float(s.waste)
-                if float(s.waste) > 0:
-                    s.wastes.append({f'{date.today()}': round(s.waste, 2)})
-                    s.money -= float(s.waste)
-                    self.listwidget.insertItem(0, str(s.wastes[-1].items())[13:-3])
-                    self.money_label.setText(f'{round(s.money, 2)}')
-                    save_data()
-                else:
-                    print('error 1')
+        global wind
+        if wind:
+            if char == '\uE750':
+                s.waste = s.waste[:-1]
+            elif char == '\uE751':
+                try:
+                    s.waste = float(s.waste)
+                    if float(s.waste) > 0:
+                        s.wastes.append({f'{date.today()}': round(s.waste, 2)})
+                        s.money -= float(s.waste)
+                        self.listwidget.insertItem(0, f'{str(s.wastes[-1].items())[14:24]}:{str(s.wastes[-1].items())[26:-3]}')
+                        self.money_label.setText(f'{round(s.money, 2)}')
+                        save_data()
+                    else:
+                        pass
+                except (ValueError, TypeError):
                     pass
-                #TypeError
-            except (ValueError):
-                print('error 2')
-                pass
-            finally:
-                s.waste = ''
+                finally:
+                    s.waste = ''
+            else:
+                s.waste += char
+            self.waste_label.setText(f'Потрачено:\n{s.waste}')
         else:
-            s.waste += char
-        self.waste_label.setText(f'Потрачено:\n{s.waste}')
+            if char == '\uE750':
+                s.budget = s.budget[:-1]
+            elif char == '\uE751':
+                self.applyClick()
+            else:
+                s.budget += char
+            self.budget_edit.setText(f'{s.budget}')
 
     def settingsClick(self):
+        global wind
+        wind = False
         self.settingsButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/settings.png'))
-        self.setFixedSize(600, 400)
-        self.settingsButton.hide()
+        self.changeover()
+        self.listwidget.clear()
+        for i in s.budgets:
+            self.listwidget.insertItem(0, i)
+        
 
     def backClick(self):
-            self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
-            s.budget = ''
-            self.budget_edit.setText('')
-            s.day = 1
-            self.day_spin.setValue(1)
-            self.setFixedSize(300, 400)
-            self.settingsButton.show()
+        global wind
+        wind = True
+        self.backButton.setIcon(QIcon(os.path.dirname(__file__) + '/icons/back.png'))
+        s.budget = ''
+        self.budget_edit.setText('')
+        s.day = 1
+        self.day_spin.setValue(1)
+        self.changeover_back()
+        self.listwidget.clear()
+        for i in s.wastes:
+            was = f'{str(i.items())[14:24]}:{str(i.items())[26:-3]}'
+            self.listwidget.insertItem(0, was)
+
+            
 
     def applyClick(self):
         try:
@@ -271,8 +352,14 @@ class MainWindow(QWidget):
             s.money = round((s.budget / s.day), 2)
             self.money_label.setText(f'{round(s.money, 2)}')
             s.moneys = s.money
-            s.days =s.day
-            s.budgets.append(f'{date.today()}: Бюджет {s.budget} на {s.days} дней')
+            s.days = str(s.day)
+            if int(s.days[-1]) == 1:
+                s.budgets.append(f'{date.today()}: Бюджет {s.budget} на {s.days} день')
+            elif 4 >= int(s.days[-1]) >= 2:
+                s.budgets.append(f'{date.today()}: Бюджет {s.budget} на {s.days} дня')
+            else:
+                s.budgets.append(f'{date.today()}: Бюджет {s.budget} на {s.days} дней')
+            self.listwidget.insertItem(0, s.budgets[-1])
             save_data()
         except ValueError:
             error1.show()
@@ -282,6 +369,37 @@ class MainWindow(QWidget):
             self.budget_edit.setText('')
             s.day = 1
             self.day_spin.setValue(1)
+    
+
+    def clear_lastClick(self):
+        global wind
+        self.clear_last.setIcon(QIcon(os.path.dirname(__file__) + '/icons/last_clear.png'))
+        if wind:
+            s.wastes.pop()
+            self.listwidget.clear()
+            for i in s.wastes:
+                was = f'{str(i.items())[14:24]}:{str(i.items())[26:-3]}'
+                self.listwidget.insertItem(0, was)
+        else:
+            s.budgets.pop()
+            self.listwidget2.clear()
+            for i in s.budgets:
+                self.listwidget.insertItem(0, i)
+        save_data()
+
+
+
+
+    def clear_allClick(self):
+        global wind
+        self.clear_all.setIcon(QIcon(os.path.dirname(__file__) + '/icons/all_clear.png'))
+        if wind:
+            clear_wastes_history()
+            self.listwidget.clear()
+        else:
+            clear_moneys_and_budgets()
+            self.listwidget.clear()
+        save_data()
 
 
     # Интерактивные элементы:
@@ -291,28 +409,57 @@ class MainWindow(QWidget):
     def budget_change(self):
         s.budget = self.budget_edit.text()
 
-    def hestory(self):
-        for i in s.wastes:
-            was = str(i.items())
-            self.listwidget.insertItem(0, was[13:-3])
-        try:
-            i = str(s.wastes[-1].keys())[12:-3]
-            h = f'{date.today()}'
-            print(i)
-            print(str(date.today()))
-            if h != i:
+    def open_and_update_app(self):
+        if len(s.history) == 0:
+            s.history.append(f'{date.today()}')
+        else:
+            if s.history[-1] != f'{date.today()}':
                 s.days -= 1
                 s.money += s.moneys
-                s.wastes.append({f'{date.today()}': f'+{s.moneys}'})
                 self.money_label.setText(f'{round(s.money, 2)}')
-                self.listwidget.insertItem(0, str(s.wastes[-1].items())[13:-3])
+                s.history.append(f'{date.today()}')
                 save_data()
-                print('edited')
             else:
-                print('not edited')
                 pass
-        except IndexError:
+        if len(s.wastes) > 0:
+            for i in s.wastes:
+                was = f'{str(i.items())[14:24]}:{str(i.items())[26:-3]}'
+                self.listwidget.insertItem(0, was)
+        else:
             pass
+
+
+    def changeover(self):
+        self.settingsButton.hide()
+        self.money_label.hide()
+        self.waste_label.hide()
+        self.top_label.hide()
+        self.history_waste.hide()
+
+        self.budget_label.show()
+        self.day_label.show()
+        self.day_spin.show()
+        self.backButton.show()
+        self.applyButton.show()
+        self.history_budget.show()
+        self.budget_edit.show()
+        self.budget_edit.setFocus()
+
+    def changeover_back(self):
+        self.settingsButton.show()
+        self.money_label.show()
+        self.top_label.show()
+        self.history_waste.show()
+        self.waste_label.show()
+        self.waste_label.setFocus()
+
+        self.budget_label.hide()
+        self.budget_edit.hide()
+        self.day_label.hide()
+        self.day_spin.hide()
+        self.backButton.hide()
+        self.applyButton.hide()
+        self.history_budget.hide()
 
 
 class ErrorWimdow(QWidget):

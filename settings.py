@@ -10,11 +10,13 @@ money = ''
 waste = ''
 wastes = []
 moneys = 0
-days = 0
+days = '0'
 budgets = []
+history = []
 
 def save_data():
     data = {
+        'history': history,
         'days': days,
         'moneys': moneys,
         'budgets': budgets,
@@ -44,11 +46,14 @@ def clear_all():
         global budgets
         global money
         global wastes
+        global history
         data = json.load(file)
         moneys = data['moneys']
         budgets = data['budgets']
         money = data['money']
         wastes = data['wastes']
+        history = data['history']
+    save_data()
 
 
 def clear_moneys_and_budgets():
@@ -58,6 +63,18 @@ def clear_moneys_and_budgets():
         data = json.load(file)
         moneys = data['moneys']
         budgets = data['budgets']
+
+
+def clear_wastes_history():
+    with open(clear_file, 'r', encoding='utf-8') as file:
+        global wastes
+        data = json.load(file)
+        wastes = data['wastes']
+
+
+
+
+
 
 
 
